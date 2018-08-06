@@ -22,7 +22,7 @@ typedef struct
 	unsigned char systolic;
 	unsigned char diastolic;        // shuzhang
 	unsigned char heartRate;
-	unsigned char heartBad_flag;
+	unsigned char heartBad_flag;  //hh
 }RECORD;
 volatile RECORD recordContent ;
 
