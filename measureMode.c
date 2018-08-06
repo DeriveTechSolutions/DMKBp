@@ -10,7 +10,7 @@
 #include "UCB0_I2C.h"
 #include "display.h"
 #include "Algorithm.h"
-
+#define <stdio.h>
 #define I2C
 #define HIGH_AIRIN 2500
 
