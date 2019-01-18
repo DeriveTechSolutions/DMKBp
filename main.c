@@ -8,13 +8,7 @@
 
 
 
-/********************************************************************
- Additional Note:
 
- - 8MHz Internal Clock (FRC with PLL), Fosc=32MHz.
-
-
-*******************************************************************/
 
 #include<msp430.h>
 #include <math.h>
@@ -43,16 +37,16 @@
 #define menu_Result         4
 
 #define Valve_OpenClose _LATE7
-#define open    0           //valve open
-#define close   1           //valve close
-#define fast    1           //pump speed fast
-#define slow    2           //pump speed slow
+#define open    0                               //valve open
+#define close   1                            //valve close
+#define fast    1                             //pump speed fast
+#define slow    2                             //pump speed slow
 #define Gain_CP 0.09
-#define Sample_Window_Interval     60//100 //60//250// 250
+#define Sample_Window_Interval     60         //100 //60//250// 250
 #define pressure_buf_length         512
-#define overPressure_limit          200     //in mmHg
-#define pulse_peak_limit             800  //919 // 1350    //ADC decimal value
-#define pressure_counting_pulse     50      //in mmHg
+#define overPressure_limit          200         //in mmHg
+#define pulse_peak_limit             800              //919 // 1350    //ADC decimal value
+#define pressure_counting_pulse     50                //in mmHg
 #define MAP_Sample_Window_Interval  4
 
 //*****************************************************************************
@@ -90,9 +84,7 @@ unsigned int mx_temp;
 uint16_t Target_Pressure, MAP_target;
 unsigned char Error;
 void BPMDemoMenu(void);
-//gcui = (ui *)ui_new(BPMDemoMenu);
-// gcui->menu_state = BPM;
-//   gcui->p_lcd = LCD37x7;
+
 
 
     char goto_sleep;
@@ -185,16 +177,7 @@ unsigned int Calibrate_Pressure (unsigned int value)
 }
 void initGPIO()
 {
-  //LEDs
- // P4OUT = 0x00;                             // P1 setup for LED & reset output
- // P4DIR |= BIT0 + BIT5 +BIT7;
 
-  //P4DIR |= BIT7;
-//  P4OUT &= ~(BIT7);
-
-  //SPI Pins
- // P3SEL |= BIT3 + BIT4;                     // P3.3,4 option select
- // P2SEL |= BIT7;                            // P2.7 option select
 
   //Button to initiate transfer
   P1DIR &= ~BIT1;                           // Set P1.1 to inpput direction
@@ -260,8 +243,8 @@ void Calculate_BP(void)
     else if (MAP<=50)
             kd = 0.50;
 
-    Ad = Max_Peak * kd;     //dia_osc
-    As = Max_Peak * ks;     //sys_osc
+    Ad = Max_Peak * kd;                            //dia_osc
+    As = Max_Peak * ks;                            //sys_osc
 
     tempD = fabs(Ad - Osc_Peak_Buf[0]);     //starting comparaing
     xDIA = 0;
@@ -270,7 +253,7 @@ void Calculate_BP(void)
         tempD_diff = fabs(Ad - Osc_Peak_Buf[xd]);
         if (tempD_diff < tempD)
         {
-            xDIA = xd;
+            xDIA = xd;                                       //location of nearest value to Ad
             tempD = tempD_diff;
         }
     }
@@ -282,7 +265,7 @@ void Calculate_BP(void)
         tempS_diff = fabs(As - Osc_Peak_Buf[xs]);
         if ( tempS_diff < tempS)
         {
-            xSYS = xs;
+            xSYS = xs;                                                //location of nearest value to As
             tempS = tempS_diff;
         }
     }
@@ -299,13 +282,19 @@ void Calculate_BP(void)
                 //update last result
 }
 
+
+
+
+
 /*****************************************************************************
  * Function Name: void BPMDemoMenu(void)
- * Specification: BPM Demo Main Menu: (1)BPM (2)LastResult (3)CLOCK
+ * Specification: BPM Demo Main Menu:
  *****************************************************************************/
+
+
 void BPMDemoMenu(void)
 {
-  //  LCD37x7->iconMICROCHIP = 1;
+
 
 
     switch(submenu_state)
@@ -313,7 +302,7 @@ void BPMDemoMenu(void)
 
 
                 case menu_PumpAir:
-                    mx = 0;                   // Reset buffer index
+                    mx = 0;                                    // Reset buffer index
                     ADC2_temp_Max = 0;
                     PeakFound = 0;
                     overPressure = 0;
@@ -326,12 +315,11 @@ void BPMDemoMenu(void)
                     Heart_Rate = 0;
                     Target_Pressure_Set = 0;
 
-                    pump_air(fast);           // Pumping air in fast mode
-                  //  _AD1IF = 0;
-                   // _SL1IF = 0;
-                    ADC12IE= ADC12IE1;          // Enable ADC1 interrupt to start collecting ADC data
+                    pump_air(fast);                              // Pumping air in fast mode
+
+                    ADC12IE= ADC12IE1;                           // Enable ADC1 interrupt to start collecting ADC data
                     submenu_state = menu_Measuring;
-                   //Press S3 button to stop pump and release air
+
                     break;
 
                 case menu_Measuring:
@@ -340,17 +328,12 @@ void BPMDemoMenu(void)
                     if (PeakFound)
                     {
                         PeakFound = 0;
-                      ///  if (pressure_reading >= 50)
-                     ///   {
-                           // LCD37x7->iconHEART = 1;
 
-                    ///        Nop();Nop();Nop();Nop();Nop();Nop();Nop();Nop();
-                      ///  }
                     }
-                    if (overPressure)       //If cuff pressure >= 200mmHg then release air
+                    if (overPressure)                      //If cuff pressure >= 200mmHg then release air
                     {
-                        ADC12IE&= ~ADC12IE1;       //Disable ADC1 interrupt
-                  //      T4CONbits.TON = 0;  //Stop Timer4
+                        ADC12IE&= ~ADC12IE1;                 //Disable ADC1 interrupt
+
                         submenu_state = menu_ReleaseAir;
                     }
 
@@ -358,18 +341,18 @@ void BPMDemoMenu(void)
 
                 case menu_ReleaseAir:
                     release_air();
-                    ADC12IE&= ~ADC12IE1;             //Disable ADC1 interrupt
-                 //   T4CONbits.TON = 0;      //Stop Timer4
+                    ADC12IE&= ~ADC12IE1;                      //Disable ADC1 interrupt
+
                     submenu_state = menu_Result;
                     break;
 
                 case menu_Result:
-                    switch (Error)  //Checking to see if any errors occured
+                    switch (Error)                                 //Checking to see if any errors occured
                     {
-                        case 0:     //No error, display blood pressure result
+                        case 0:                                   //No error, display blood pressure result
 
                             break;
-                        case 1:     //Error1 (over preset pressure limit) occured, display error message
+                        case 1:                                   //Error1 (over preset pressure limit) occured, display error message
 
                             break;
                     }
@@ -378,33 +361,35 @@ void BPMDemoMenu(void)
 }
 
 
+/***************************************************************************
+****************************************************************************
 
+ADC interrupt subroutine
+
+
+***************************************************************************
+****************************************************************************/
 
 #pragma vector=ADC12_VECTOR
 __interrupt void adc_isr()
 {
- //   test++;
-  //  if (_SL1IF)      //AD Sample List 1 interrupt event occurred indicating AD results are ready
+
     {
-//        _RG7 = 1;   // for debugging
+
        ADC1_temp = ADC12MEM0;         //Channel1(ADC1) = Cuff pressure
         ADC2_temp = ADC12MEM1;         //Channel2(ADC2) = Extracted oscillation signal
-//test1=ADC2_temp;
- // ADC2_temp = filterSingle(&k, ADC2_temp);    //Filtering the ADC data
-//test2=ADC2_temp;
-//test2=10;
-      //  U1_waveform(ADC2_temp);        //display oscillation(pulse) waveform from ADC2
 
-        pressure_reading0 = (int)(ADC1_temp * Gain_CP); // mmHg = ADC_value * (3.3V/4096) / 151 DC_gain / 0.0008 KPa * (760 mmHg / 101.325 KPa) = ADC * 0.05
+
+        pressure_reading0 = (int)(ADC1_temp * Gain_CP);                               // mmHg = ADC_value * (3.3V/4096) / 151 DC_gain / 0.0008 KPa * (760 mmHg / 101.325 KPa) = ADC * 0.05
 
         pressure_reading = Calibrate_Pressure(pressure_reading0);
 
-        //Finding each pulse peak in oscillation signal
+         //Finding each pulse peak in oscillation signal
         if ( ADC1_temp > 840)
         {
 
 
-            if (ADC2_temp > ADC2_temp_Max)      //Finding each pulse peak in oscillation signal
+            if (ADC2_temp > ADC2_temp_Max)                                           //Finding each pulse peak in oscillation signal
             {
                 ADC2_temp_Max = ADC2_temp;
                 ADC1_temp_Max = ADC1_temp;
@@ -412,12 +397,12 @@ __interrupt void adc_isr()
             }
             else
             {
-                Sample_Window_Counter--;        //signal is now going down
-                if (Sample_Window_Counter == 0)     //no more max peaks detected in the sampling window interval
+                Sample_Window_Counter--;                                                  //signal is now going down
+                if (Sample_Window_Counter == 0)                                           //no more max peaks detected in the sampling window interval
                 {
-                    if (ADC2_temp_Max > pulse_peak_limit)   //peak value must be greater than specific value to be counted as a pulse
+                    if (ADC2_temp_Max > pulse_peak_limit)                                 //peak value must be greater than specific value to be counted as a pulse
                     {
-                        if (mx < pressure_buf_length)   //keep buffer from overflow
+                        if (mx < pressure_buf_length)                                     //keep buffer from overflow
                         {
                             Osc_Peak_Buf[mx] = ADC2_temp_Max;
                             CP_Peak_Buf[mx] = ADC1_temp_Max;
@@ -434,15 +419,15 @@ __interrupt void adc_isr()
                             {
                                 MAP_temp_Max = MAP_temp;
                                 mx_temp = mx-1;
-                                MAP_Sample_Window_Counter = MAP_Sample_Window_Interval;  //number of pulse peaks needed after peak Max is found
+                                MAP_Sample_Window_Counter = MAP_Sample_Window_Interval;          //number of pulse peaks needed after peak Max is found
                             }
                             else
                             {
                                 MAP_Sample_Window_Counter--;
-                                if (MAP_Sample_Window_Counter == 0)
+                                if (MAP_Sample_Window_Counter == 0)                                //found peak max
                                 {
                                     MAP_target = (int)(Osc_Peak_Buf[mx_temp] * Gain_CP);
-                                    Target_Pressure = MAP_target + 40;
+                                    Target_Pressure = MAP_target + 40;                                 //set the pressure limit more 40 mmhg from MAP target pressure
 
                                    // Target_Pressure = Calibrate_Pressure(Target_Pressure);
                                     Target_Pressure_Set = 1;
@@ -458,10 +443,10 @@ __interrupt void adc_isr()
             {
 
 
-                if (pressure_reading >= Target_Pressure)    //If cuff pressure >= Target_Pressure then go to calculate BP and release air
+                if (pressure_reading >= Target_Pressure)          //If cuff pressure >= Target_Pressure then go to calculate BP and release air
                 {
                     overPressure = 1;
-                    Error = 0;  //no error
+                    Error = 0;                                   //no error
                     Calculate_BP();
                 }
             }
@@ -470,44 +455,45 @@ __interrupt void adc_isr()
                 if (pressure_reading >= overPressure_limit)    //If cuff pressure >= overPressure_Limit then go to release air and display error message
                 {
                     overPressure = 1;
-                    Error = 1;  //Err1=over preset pressure limit
+                    Error = 1;                                    //Err1=over preset pressure limit
                 }
             }
         }
-//        _RG7 = 0;   // for debugging
+
     }
-   // _AD1IF = 0;
-   // _SL1IF = 0;
+
 }
 
+/***************************************************************************
+****************************************************************************
 
+adc_init():this function initialize ADC,
+
+***************************************************************************
+****************************************************************************/
 
 void adc_init()
 {
 ADC12CTL0=ADC12SHT0_5 | ADC12ON | ADC12MSC;
 ADC12CTL1=ADC12SHP | ADC12CONSEQ_3 + ADC12DIV_0 + ADC12SSEL_1 ;
-//ADC12CTL2=ADC12RES1;
+
 ADC12MCTL0=ADC12INCH_0;
-ADC12MCTL1=ADC12INCH_1 | ADC12EOS;
+ADC12MCTL1=ADC12INCH_1 | ADC12EOS;                //select channel 0 and channel 1
 P6SEL = 0x0F;
-//ADC12IE= ADC12IE1;
- //   WDTCTL = WDTPW+WDTHOLD;                   // Stop watchdog timer
-                          // Enable A/D channel inputs
+
+
 
 }
 
+/***************************************************************************
+****************************************************************************
+//port interrupt subroutine
+//port1
 
-void Init(void)
-{
-    //**********************************************************************
-    // Initialize Oscillator, FRC with PLL
-    // FRC=8MHz -> /1=8MHz(RCDIV=0) -> /2=4MHz(PLLDIV=1) -> 96MHz PLL -> /3=32MHz -> /1=32MHz=Fosc(CPDIV=0)
-    // Fosc=32MHz, Fcy=Fosc/2=16MHz
-    //**********************************************************************
-    //CLKDIVbits.RCDIV = 0;   //FRC postscaler 8MHz
-   // CLKDIVbits.CPDIV = 0;       //System Clock (Fosc) is 32 MHz
 
-}
+****************************************************************************
+****************************************************************************/
+
 
 #if defined(__TI_COMPILER_VERSION__) || defined(__IAR_SYSTEMS_ICC__)
 #pragma vector=PORT1_VECTOR
@@ -518,16 +504,17 @@ void __attribute__ ((interrupt(PORT1_VECTOR))) Port_1 (void)
 #error Compiler not supported!
 #endif
 {
- // P4OUT ^= BIT7;
-  //count++;// P1.0 = toggle
-    ADC12IE&= ~ADC12IE1;
- P1IFG &= ~BIT1;
- P2OUT&=~(BIT4+BIT5);
- // P1.1 IFG cleared
- // P1IE &= ~BIT1;
-// __delay_cycles(10);
- // __bic_SR_register_on_exit(CPUOFF);      // Exit LPM0
+
+    ADC12IE&= ~ADC12IE1;           //disable ADC interrupt
+ P1IFG &= ~BIT1;                   //clear port interupt flag
+ P2OUT&=~(BIT4+BIT5);               //stop the pump and open the valve
+
 }
+
+
+
+
+
 /****************************************************************************
 *****************************************************************************
 *
@@ -544,28 +531,29 @@ int main()
     initGPIO();                                 // Set lowest possible DCOx, MODx
 
     test=2;
+    //set the MCLK and SMCLK to 16Mhz
     do
      {
        UCSCTL7 &= ~(XT2OFFG + XT1LFOFFG + DCOFFG);
-          test++;                                     // Clear XT2,XT1,DCO fault flags
-       SFRIFG1 &= ~OFIFG;                      // Clear fault flags
-     }while (SFRIFG1&OFIFG);                   // Test oscillator fault flag
+          test++;
+       SFRIFG1 &= ~OFIFG;
+     }while (SFRIFG1&OFIFG);
     test=1;
-     __bis_SR_register(SCG0 +GIE);                  // Disable the FLL control loop
-     UCSCTL1 = DCORSEL_5;                      // Select DCO range 16MHz operation
-     UCSCTL2 |= 487;                           // Set DCO Multiplier for 8MHz
-                                               // (N + 1) * FLLRef = Fdco
-                                               // (249 + 1) * 32768 = 8MHz
-     __bic_SR_register(SCG0);                  // Enable the FLL control loop
+     __bis_SR_register(SCG0 +GIE);
+     UCSCTL1 = DCORSEL_5;
+     UCSCTL2 |= 487;
+
+
+     __bic_SR_register(SCG0);
 
 
      __delay_cycles(250000);
- //    Init();
-  //   test=22;
+
+
      adc_init();
      ADC12CTL0 |= ADC12ENC;                    // Enable conversions
        ADC12CTL0 |= ADC12SC;
-//       test=333;
+
     //**********************************************************************
     // Initialize Digital Lowpass Filter
     //**********************************************************************
@@ -577,15 +565,15 @@ int main()
     //**********************************************************************
     while(1)
     {
-//        LCD37x7->iconHEART = 0;
-        BPMDemoMenu();
-      //  SD1CON2bits.SDRDY= 0;
-       // SD1CON1bits.SDRST = 0;
 
-      //  if(USBGetDeviceState() == DETACHED_STATE) {
-        //    USBDeviceAttach();
-       // }
-      //  CDCTxService();
+        BPMDemoMenu();
+
+
+
+
+
+
+
     }
 
     return 0;
